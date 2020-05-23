@@ -120,8 +120,115 @@
                     "type": "color"
                 },
                 {
-                    "key": "tap",
-                    "header": "Tap sound effect",
+                    "key": "rows",
+                    "header": "Rows",
+                    "type": "range",
+                    "options": {
+                        "minValue": 5,
+                        "maxValue": 9,
+                        "stepSize": 1
+                    }
+                },
+                {
+                    "key": "columns",
+                    "header": "Columns",
+                    "type": "range",
+                    "options": {
+                        "minValue": 5,
+                        "maxValue": 9,
+                        "stepSize": 1
+                    }
+                },
+                {
+                    "key": "objects",
+                    "header": "Objects",
+                    "type": "array",
+                    "fields":  [
+                        {
+                            "key": "o1",
+                            "header": "Object 1",
+                            "type": "image"
+                        },
+                        {
+                            "key": "o2",
+                            "header": "Object 2",
+                            "type": "image"
+                        },
+                        {
+                            "key": "o3",
+                            "header": "Object 3",
+                            "type": "image"
+                        },
+                        {
+                            "key": "o4",
+                            "header": "Object 4",
+                            "type": "image"
+                        }
+                    ]
+                },
+                {
+                    "key": "correctMovePoints",
+                    "header": "Points to increase on correct move",
+                    "type": "range",
+                    "options": {
+                        "minValue": 1,
+                        "maxValue": 10,
+                        "stepSize": 1
+                    }
+                },
+                {
+                    "key": "wrongMoves",
+                    "header": "Allow wrong moves",
+                    "type": "boolean"
+                },
+                {
+                    "key": "wrongMovePoints",
+                    "header": "Points to reduce on wrong move",
+                    "type": "range",
+                    "options": {
+                        "minValue": 1,
+                        "maxValue": 10,
+                        "stepSize": 1
+                    }
+                },
+                {
+                    "key": "scoreToWin",
+                    "header": "Score required to win",
+                    "type": "range",
+                    "options": {
+                        "minValue": 10,
+                        "maxValue": 1000,
+                        "step": 1
+                    }
+                },
+                {
+                    "key": "fixedLegth",
+                    "header": "Fixed length game",
+                    "type": "boolean"
+                },
+                {
+                    "key": "gameLength",
+                    "header": "Game length",
+                    "type": "range",
+                    "options": {
+                        "minValue": 5,
+                        "maxValue": 60,
+                        "stepSize": 1
+                    }
+                },
+                {
+                    "key": "correctMove",
+                    "header": "Correct move sound effect",
+                    "type": "sound"
+                },
+                {
+                    "key": "incorrectMove",
+                    "header": "Incorrect move sound effect",
+                    "type": "sound"
+                },
+                {
+                    "key": "winSound",
+                    "header": "Win sound effect",
                     "type": "sound"
                 },
                 {
@@ -227,7 +334,7 @@
     ],
     "config": {
         "preGameScreen": {
-            "titleText": "Stack The Blocks",
+            "titleText": "Match 3",
             "titleTextSize": 30,
             "playButtonText": "Play",
             "cardColor": "#ffffff",
@@ -248,10 +355,16 @@
             "instructions2": "Place new blocks over the old ones",
             "instructions3": "Have fun!",
             "textColor": "#000",
+            "rows": 7,
+            "columns": 7,
+            "objects": {
+                "o1": "assets/apple.png",
+                "o2": "assets/banana.png",
+                "o3": "assets/pear.png",
+                "o4": "assets/cherrys.png"
+            },
             "theme": "assets/theme.ogg",
-            "volume": "0.7",
-            "tap": "assets/tap.wav",
-            "lose": "assets/lose.wav"
+            "volume": "0.7"
         },
         "postGameScreen": {
             "scoreText": "Your score is: ",
