@@ -73,10 +73,9 @@ window.sounds = {};
 
 window.preload = function() {
     window.images.background = loadImage(config.preGameScreen["backgroundImage"])
-    window.images.objects = {};
 
-    Object.keys(config.settings.objects).map(k => {
-        window.images.objects[k] = loadImage(config.settings.objects[k]);
+    window.images.objects = Object.keys(config.settings.objects).map(k => {
+        return loadImage(config.settings.objects[k]);
     });
 
     window.sounds.theme = loadSound(config.settings.theme);

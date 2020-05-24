@@ -251,10 +251,110 @@ class Game {
             columns: columns,
             items: Object.values(window.images.objects).length
         });
+
+        this.match3.generateField();
+
+        this.canPick = true;
+        this.dragging = false;
     }
 
     permaUpdate() {
 
+        // draw field
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                let x = start.x + j * (tileSize + tileOffset);
+                let y = start.y + i * (tileSize + tileOffset);
+
+                let img = window.images.objects[this.match3.valueAt(i, j)];
+                let size = calculateAspectRatioFit(img.width, img.height, tileSize, tileSize);
+
+                push();
+                translate(x, y);
+                imageMode(CENTER);
+                image(img, 0, 0, size.width, size.height);
+                imageMode(CORNER);
+                pop();
+            }
+        }
+
+        let item = this.match3.getSelectedItem();
+        if (item) {
+            stroke(255);
+            noFill();
+            rect(start.x + ((tileSize + tileOffset) * item.column) - tileSize / 2, start.y + ((tileSize + tileOffset) * item.row) - tileSize / 2, tileSize, tileSize);
+        }
+    }
+
+    gemSelect() {
+        if (this.canPick) {
+            this.dragging = true;
+
+            let row = floor((mouseY - start.y + tileSize / 2) / (tileSize + tileOffset));
+            let col = floor((mouseX - start.x + tileSize / 2) / (tileSize + tileOffset));
+
+            if (this.match3.validPick(row, col)) {
+
+                this.selectedGem = this.match3.getSelectedItem();
+
+                if (!this.selectedGem) {
+                    this.match3.setSelectedItem(row, col);
+                } else {
+
+                    if (this.match3.areTheSame(row, col, this.selectedGem.row, this.selectedGem.column)) {
+                        this.match3.deleselectItem();
+                    } else {
+                        if (this.match3.areNext(row, col, this.selectedGem.row, this.selectedGem.column)) {
+                            this.match3.deleselectItem();
+                            this.swapGems(row, col, this.selectedGem.row, this.selectedGem.column, true);
+                        } else {
+                            this.match3.setSelectedItem(row, col);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    swapGems(row, col, row2, col2, swapBack) {
+        let movements = this.match3.swapItems(row, col, row2, col2);
+        this.swappingGems = 2;
+        this.canPick = false
+
+        if (!this.match3.matchInBoard()) {
+            if (swapBack) {
+                this.swapGems(row, col, row2, col2, false);
+            } else {
+                this.canPick = true;
+            }
+        } else {
+            this.handleMatches();
+        }
+    }
+
+    handleMatches() {
+        let gemsToRemove = this.match3.getMatchList();
+        this.score += gemsToRemove.length * config.settings.correctMovePoints;
+        this.makeGemsFall();
+    }
+
+    makeGemsFall() {
+        let moved = 0;
+        this.match3.removeMatches();
+        let fallingMovements = this.match3.arrangeBoardAfterMatch();
+
+        let replenishMovements = this.match3.replenishBoard();
+        
+        this.endOfMove()
+    }
+
+    endOfMove() {
+        if (this.match3.matchInBoard()) {
+            this.handleMatches()
+        } else {
+            this.canPick = true;
+            this.selectedGem = null;
+        }
     }
 
     updateGame() {
@@ -262,7 +362,7 @@ class Game {
     }
 
     onMousePress() {
-
+        this.gemSelect();
     }
 
     finishGame() {
@@ -319,6 +419,11 @@ class Game {
         let coverRatio = Math.max(originalRatios.width, originalRatios.height);
         this.bgImageWidth = this.bgImage.width * coverRatio;
         this.bgImageHeight = this.bgImage.height * coverRatio;
+
+
+        // also calculate board x - y
+        start.x = windowWidth / 2 - floor(rows / 2) * (tileSize + tileOffset);
+        start.y = windowHeight / 2 - floor(columns / 2) * (tileSize + tileOffset);
     }
 
     draw() {

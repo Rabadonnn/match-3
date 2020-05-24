@@ -357,6 +357,7 @@
             "textColor": "#000",
             "rows": 7,
             "columns": 7,
+            "correctMovePoints": 5,
             "objects": {
                 "o1": "assets/apple.png",
                 "o2": "assets/banana.png",
