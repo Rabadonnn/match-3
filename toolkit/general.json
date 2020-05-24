@@ -351,8 +351,8 @@
             "soundDisabledIcon": "assets/sound_off.png"
         },
         "settings": {
-            "instructions1": "Tap / Spacebar to place blocks",
-            "instructions2": "Place new blocks over the old ones",
+            "instructions1": "Tap an item to select",
+            "instructions2": "Tap another to swap",
             "instructions3": "Have fun!",
             "textColor": "#000",
             "rows": 7,
