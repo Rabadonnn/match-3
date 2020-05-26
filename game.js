@@ -242,6 +242,28 @@ class Match3 {
     }
 }
 
+class Tile {
+    constructor(x, y, value) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
+        this.scale = 1;
+    }
+
+    draw() {
+        let img = window.images.objects[this.value];
+        let size = calculateAspectRatioFit(img.width, img.height, tileSize, tileSize);
+
+        push();
+        translate(start.x + this.y * (tileSize + tileOffset), start.y + this.x * (tileSize + tileOffset));
+        scale(this.scale);
+        imageMode(CENTER);
+        image(img, 0, 0, size.width, size.height);
+        imageMode(CORNER);
+        pop();
+    }
+}
+
 class Game {
     constructor() {
         this.defaults();
@@ -254,8 +276,18 @@ class Game {
 
         this.match3.generateField();
 
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                let value = this.match3.valueAt(i, j);
+                let tile = new Tile(i, j, value);
+                this.match3.setCustomData(i, j, tile);
+            }
+        }
+
         this.canPick = true;
         this.dragging = false;
+        this.poolArray = [];
     }
 
     permaUpdate() {
@@ -263,22 +295,12 @@ class Game {
         // draw field
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
-                let x = start.x + j * (tileSize + tileOffset);
-                let y = start.y + i * (tileSize + tileOffset);
-
-                let img = window.images.objects[this.match3.valueAt(i, j)];
-                let size = calculateAspectRatioFit(img.width, img.height, tileSize, tileSize);
-
-                push();
-                translate(x, y);
-                imageMode(CENTER);
-                image(img, 0, 0, size.width, size.height);
-                imageMode(CORNER);
-                pop();
+                this.match3.customDataOf(i, j).draw();
             }
         }
 
         let item = this.match3.getSelectedItem();
+
         if (item) {
             stroke(255);
             noFill();
@@ -299,15 +321,45 @@ class Game {
 
                 if (!this.selectedGem) {
                     this.match3.setSelectedItem(row, col);
-                } else {
 
+                    // scale up the selected item
+                    shifty.tween({
+                        from: {
+                            scale: 1
+                        },
+                        to: {
+                            scale: 1.2
+                        },
+                        duration: 100,
+                        easing: "bounce",
+                        step: state => {
+                            this.match3.customDataOf(row, col).scale = state.scale;
+                        }
+                    });
+                } else {
                     if (this.match3.areTheSame(row, col, this.selectedGem.row, this.selectedGem.column)) {
+                        this.match3.customDataOf(row, col).scale = 1;
                         this.match3.deleselectItem();
                     } else {
                         if (this.match3.areNext(row, col, this.selectedGem.row, this.selectedGem.column)) {
+                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;
                             this.match3.deleselectItem();
                             this.swapGems(row, col, this.selectedGem.row, this.selectedGem.column, true);
                         } else {
+                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;;
+                            shifty.tween({
+                                from: {
+                                    scale: 1
+                                },
+                                to: {
+                                    scale: 1.2
+                                },
+                                duration: 100,
+                                easing: "bounce",
+                                step: state => {
+                                    this.match3.customDataOf(row, col).scale = state.scale;
+                                }
+                            });
                             this.match3.setSelectedItem(row, col);
                         }
                     }
@@ -321,36 +373,137 @@ class Game {
         this.swappingGems = 2;
         this.canPick = false
 
-        if (!this.match3.matchInBoard()) {
-            if (swapBack) {
-                this.swapGems(row, col, row2, col2, false);
-            } else {
-                this.canPick = true;
-            }
-        } else {
-            this.handleMatches();
-        }
+        movements.map(m => {
+            shifty.tween({
+                from: {
+                    x: this.match3.customDataOf(m.row, m.column).x,
+                    y: this.match3.customDataOf(m.row, m.column).y
+                },
+                to: {
+                    x: this.match3.customDataOf(m.row, m.column).x + m.deltaRow,
+                    y: this.match3.customDataOf(m.row, m.column).y + m.deltaColumn
+                },
+                easing: "bounce",
+                duration: 150,
+                step: state => {
+                    this.match3.customDataOf(m.row, m.column).x = state.x;
+                    this.match3.customDataOf(m.row, m.column).y = state.y;
+                }
+            }).then(() => {
+                this.swappingGems--;
+                if (this.swappingGems == 0) {
+                    if (!this.match3.matchInBoard()) {
+                        if (swapBack) {
+                            this.swapGems(row, col, row2, col2, false);
+                        } else {
+                            this.canPick = true;
+                        }
+                    } else {
+                        this.handleMatches();
+                    }
+                }
+            });
+        });
     }
 
     handleMatches() {
         let gemsToRemove = this.match3.getMatchList();
         this.score += gemsToRemove.length * config.settings.correctMovePoints;
-        this.makeGemsFall();
+
+        let destroyed = 0;
+        gemsToRemove.map(gem => {
+            this.poolArray.push(this.match3.customDataOf(gem.row, gem.column));
+
+            destroyed++;
+
+            shifty.tween({
+                from: {
+                    scale: 1
+                },
+                to: {
+                    scale: 0
+                },
+                duration: 150,
+                easing: "bounce",
+                step: state => {
+                    this.match3.customDataOf(gem.row, gem.column).scale = state.scale;
+                }
+            }).then(() => {
+                destroyed--;
+                if (destroyed == 0) {
+                    this.makeGemsFall();
+                }
+            });
+        });
     }
 
     makeGemsFall() {
         let moved = 0;
         this.match3.removeMatches();
+
         let fallingMovements = this.match3.arrangeBoardAfterMatch();
 
+        fallingMovements.map(move => {
+            moved++;
+
+            shifty.tween({
+                from: {
+                    y: this.match3.customDataOf(move.row, move.column).x
+                },
+                to: {
+                    y: this.match3.customDataOf(move.row, move.column).x + move.deltaRow,
+                },
+                duration: 200,
+                easing: "easeInQuad",
+                step: state => {
+                    this.match3.customDataOf(move.row, move.column).x = state.y;
+                }
+            }).then(() => {
+                moved--;
+                if (moved == 0) {
+                    this.endOfMove();
+                }
+            })
+        });
+
         let replenishMovements = this.match3.replenishBoard();
-        
-        this.endOfMove()
+
+        replenishMovements.map(move => {
+            moved++;
+
+            let tile = this.poolArray.pop();
+            tile.scale = 1;
+            tile.x = move.row - move.deltaRow + 1;
+            tile.y = move.column;
+            tile.value = this.match3.valueAt(move.row, move.column);
+
+            this.match3.setCustomData(move.row, move.column, tile);
+
+            shifty.tween({
+                from: {
+                    y: tile.x
+                },
+                to: {
+                    y: move.row
+                },
+                step: state => {
+                    tile.x = state.y;
+                }
+            }).then(() => {
+                moved--;
+                if (moved == 0) {
+                    this.endOfMove();
+                    console.log(tile, move.row, move.column);
+                }
+            })
+        });
     }
 
     endOfMove() {
         if (this.match3.matchInBoard()) {
-            this.handleMatches()
+            setTimeout(() => {
+                this.handleMatches();
+            }, 250);
         } else {
             this.canPick = true;
             this.selectedGem = null;
