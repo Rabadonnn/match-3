@@ -288,6 +288,10 @@ class Game {
         this.canPick = true;
         this.dragging = false;
         this.poolArray = [];
+
+        if (config.settings.fixedLength) {
+            this.gameTimer = config.settings.gameLength;
+        }
     }
 
     permaUpdate() {
@@ -408,7 +412,12 @@ class Game {
 
     handleMatches() {
         let gemsToRemove = this.match3.getMatchList();
+
         this.score += gemsToRemove.length * config.settings.correctMovePoints;
+
+        if (config.settings.maxScore && this.score > config.settings.scoreToWin) {
+            this.finishGame();
+        }
 
         let destroyed = 0;
         gemsToRemove.map(gem => {
@@ -486,6 +495,8 @@ class Game {
                 to: {
                     y: move.row
                 },
+                duration: 200,
+                easing: "easeInQuad",
                 step: state => {
                     tile.x = state.y;
                 }
@@ -493,7 +504,6 @@ class Game {
                 moved--;
                 if (moved == 0) {
                     this.endOfMove();
-                    console.log(tile, move.row, move.column);
                 }
             })
         });
@@ -511,7 +521,19 @@ class Game {
     }
 
     updateGame() {
+        if (config.settings.fixedLength && this.score > 0) {
 
+            textAlign(RIGHT);
+            fill(config.settings.textColor);
+            noStroke();
+            textSize(this.scoreFontSize * 0.6);
+            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns  / 2), 100);
+
+            this.gameTimer -= deltaTime / 1000;
+            if (this.gameTimer < 0) {
+                this.finishGame();
+            }
+        }
     }
 
     onMousePress() {
@@ -538,7 +560,7 @@ class Game {
 
         this.instructionsFontSize = height / 30;
         this.scoreFontSize = height / 20;
-        this.delayBeforeExit = 1.2;
+        this.delayBeforeExit = 0.2;
 
         // Don'touch these
         this.started = false;

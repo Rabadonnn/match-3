@@ -178,7 +178,7 @@
                 },
                 {
                     "key": "wrongMoves",
-                    "header": "Allow wrong moves",
+                    "header": "Reduce points on wrong move",
                     "type": "boolean"
                 },
                 {
@@ -190,6 +190,11 @@
                         "maxValue": 10,
                         "stepSize": 1
                     }
+                },
+                {
+                    "key": "maxScore",
+                    "header": "End game after hitting x score",
+                    "type": "boolean"
                 },
                 {
                     "key": "scoreToWin",
@@ -358,6 +363,12 @@
             "rows": 7,
             "columns": 7,
             "correctMovePoints": 5,
+            "wrongMoves": false,
+            "wrongMovePoints": 5,
+            "maxScore": false,
+            "scoreToWin": 1000,
+            "fixedLength": false,
+            "gameLength": 15,
             "objects": {
                 "o1": "assets/apple.png",
                 "o2": "assets/banana.png",
