@@ -276,7 +276,6 @@ class Game {
 
         this.match3.generateField();
 
-
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 let value = this.match3.valueAt(i, j);
@@ -292,9 +291,15 @@ class Game {
         if (config.settings.fixedLength) {
             this.gameTimer = config.settings.gameLength;
         }
+
+        this.startPoint = undefined;
+        this.touchCD = 0;
+        this.minTouchDistance = tileSize * 0.6;
     }
 
     permaUpdate() {
+
+        this.swipeSelect();
 
         // draw field
         for (let i = 0; i < rows; i++) {
@@ -350,7 +355,7 @@ class Game {
                             this.match3.deleselectItem();
                             this.swapGems(row, col, this.selectedGem.row, this.selectedGem.column, true);
                         } else {
-                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;;
+                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;
                             shifty.tween({
                                 from: {
                                     scale: 1
@@ -368,6 +373,117 @@ class Game {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    swipeSelect() {
+
+        if (mouseIsPressed && this.startPoint == undefined && this.canPick) {
+            this.startPoint = {
+                x: mouseX,
+                y: mouseY
+            };
+            this.touchCD = 1.5;
+
+            this.dragging = true;
+
+            // select gem
+            this.row = floor((mouseY - start.y + tileSize / 2) / (tileSize + tileOffset));
+            this.col = floor((mouseX - start.x + tileSize / 2) / (tileSize + tileOffset));
+
+            this.valid = this.match3.validPick(this.row, this.col);
+
+            if (this.valid) {
+                this.selectedGem = this.match3.getSelectedItem();
+
+                if (!this.selectedGem) {
+                    this.match3.setSelectedItem(this.row, this.col);
+                    shifty.tween({
+                        from: {
+                            scale: 1
+                        },
+                        to: {
+                            scale: 1.2
+                        },
+                        duration: 100,
+                        easing: "bounce",
+                        step: state => {
+                            try {
+                                this.match3.customDataOf(this.row, this.col).scale = state.scale;
+                            } catch {}
+                        }
+                    });
+                }
+            }
+        }
+
+        if (this.startPoint != undefined && this.canPick) {
+            this.touchCD -= deltaTime / 1000;
+            if (!mouseIsPressed) {
+                let distance = dist(this.startPoint.x, this.startPoint.y, mouseX, mouseY);
+
+                if (this.touchCD > 0 && distance > this.minTouchDistance) {
+                    let dir = createVector(mouseX - this.startPoint.x, mouseY - this.startPoint.y);
+                    dir.normalize();
+
+                    if (this.valid) {
+                        if (dir.x > 0 && dir.y < 0.45 && dir.y > -0.45) {
+                            // console.log("right");
+                            if (this.col == columns - 1) {
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.match3.deleselectItem();
+                            } else {
+                                this.match3.deleselectItem();
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.swapGems(this.row, this.col, this.row, this.col + 1, true);
+                            }
+                        } else if (dir.x < 0 && dir.y < 0.45 && dir.y > -0.45) {
+                            // console.log("left");
+                            if (this.col == 0) {
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.match3.deleselectItem();
+                            } else {
+                                this.match3.deleselectItem();
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.swapGems(this.row, this.col, this.row, this.col - 1, true);
+                            } 
+                        } else if (dir.x < 0.45 && dir.x > -0.45 && dir.y < 0) {
+                            // console.log("up");
+                            if (this.row == 0) {
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.match3.deleselectItem();
+                            } else {
+                                this.match3.deleselectItem();
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.swapGems(this.row, this.col, this.row - 1, this.col, true);
+                            } 
+                        } else if (dir.x < 0.45 && dir.x > -0.45 && dir.y > 0) {
+                            // console.log("down");
+                            if (this.row == rows - 1) {
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.match3.deleselectItem();
+                            } else {
+                                this.match3.deleselectItem();
+                                this.match3.customDataOf(this.row, this.col).scale = 1;
+                                this.swapGems(this.row + 1, this.col, this.row, this.col, true);
+                            } 
+                        }
+                    }
+                }
+
+                if (this.valid) {
+                    this.match3.customDataOf(this.row, this.col).scale = 1;
+                    if (this.selectedGem) {
+                        this.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;
+                    }
+                    this.match3.deleselectItem();
+                }
+
+                this.startPoint = undefined;
+                this.valid = null;
+                this.row = null;
+                this.column = null;
             }
         }
     }
@@ -404,6 +520,9 @@ class Game {
                                 if (this.score < 0) {
                                     this.score = 0;
                                 }
+                            }
+                            if (config.settings.timeWrongMoves) {
+                                this.gameTimer -= config.settings.wrongMoveTime;
                             }
                         } else {
                             this.canPick = true;
@@ -533,17 +652,22 @@ class Game {
             fill(config.settings.textColor);
             noStroke();
             textSize(this.scoreFontSize * 0.6);
-            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns  / 2), 100);
+            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns / 2), 100);
 
             this.gameTimer -= deltaTime / 1000;
+
             if (this.gameTimer < 0) {
+                this.gameTimer = 0;
+            }
+
+            if (this.gameTimer <= 0) {
                 this.finishGame();
             }
         }
     }
 
     onMousePress() {
-        this.gemSelect();
+
     }
 
     finishGame() {

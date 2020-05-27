@@ -192,6 +192,21 @@
                     }
                 },
                 {
+                    "key": "timeWrongMoves",
+                    "header": "Reduce time on wrong move",
+                    "type": "boolean"
+                },
+                {
+                    "key": "wrongMoveTime",
+                    "header": "Time to reduce on wrong move",
+                    "type": "range",
+                    "options": {
+                        "minValue": 1,
+                        "maxValue": 10,
+                        "step": 1
+                    }
+                },
+                {
                     "key": "maxScore",
                     "header": "End game after hitting x score",
                     "type": "boolean"
@@ -356,8 +371,8 @@
             "soundDisabledIcon": "assets/sound_off.png"
         },
         "settings": {
-            "instructions1": "Tap an item to select",
-            "instructions2": "Tap another to swap",
+            "instructions1": "Swipe across 2 items to swap them",
+            "instructions2": "Score as much as possible!",
             "instructions3": "Have fun!",
             "textColor": "#000",
             "rows": 7,
@@ -365,6 +380,8 @@
             "correctMovePoints": 5,
             "wrongMoves": true,
             "wrongMovePoints": 5,
+            "timeWrongMoves": true,
+            "wrongMoveTime":5, 
             "maxScore": false,
             "scoreToWin": 1000,
             "fixedLength": false,
