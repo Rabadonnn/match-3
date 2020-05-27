@@ -399,6 +399,12 @@ class Game {
                     if (!this.match3.matchInBoard()) {
                         if (swapBack) {
                             this.swapGems(row, col, row2, col2, false);
+                            if (config.settings.wrongMoves) {
+                                this.score -= config.settings.wrongMovePoints;
+                                if (this.score < 0) {
+                                    this.score = 0;
+                                }
+                            }
                         } else {
                             this.canPick = true;
                         }

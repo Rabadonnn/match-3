@@ -363,7 +363,7 @@
             "rows": 7,
             "columns": 7,
             "correctMovePoints": 5,
-            "wrongMoves": false,
+            "wrongMoves": true,
             "wrongMovePoints": 5,
             "maxScore": false,
             "scoreToWin": 1000,
