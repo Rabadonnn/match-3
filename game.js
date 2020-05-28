@@ -295,11 +295,70 @@ class Game {
         this.startPoint = undefined;
         this.touchCD = 0;
         this.minTouchDistance = tileSize * 0.6;
+
+        this.messageTextSize = 0;
+        this.startTween = false;
+    }
+
+    updateGame() {
+        if (config.settings.fixedLength && this.score > 0) {
+
+            textAlign(RIGHT);
+            fill(color(config.settings.textColor));
+            noStroke();
+            textSize(this.scoreFontSize * 0.6);
+            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns / 2), 100);
+
+            this.gameTimer -= deltaTime / 1000;
+
+            if (this.gameTimer < 0) {
+                this.gameTimer = 0;
+            }
+
+            if (this.gameTimer <= 0 && !this.finished) {
+                this.finishGame();
+            }
+        }
+
+        if (this.finished) {
+            if (!this.startTween) {
+                shifty.tween({
+                    from: {
+                        size: 0
+                    },
+                    to: {
+                        size: this.scoreFontSize * 1.2
+                    },
+                    duration: (this.delayBeforeExit * 0.9) * 1000,
+                    easing: "elastic",
+                    step: state => {
+                        this.messageTextSize = state.size;
+                    }
+                });
+                this.startTween = true;
+            }
+
+            textAlign(CENTER);
+            textStyle(BOLD);
+            fill(color(config.settings.messageTextColor));
+            noStroke();
+            textSize(this.messageTextSize);
+            let message;
+            if (config.settings.fixedLegth && this.score < config.settings.scoreToWin) {
+                message = config.settings.timeUpText;
+            } else if (config.settings.fixedLength && this.score >= config.settings.scoreToWin) {
+                message = config.settings.winText;
+            }
+            text(message, width / 2, height / 4);
+            textStyle(NORMAL);
+        }
     }
 
     permaUpdate() {
 
-        this.swipeSelect();
+        if (!this.finished) {
+            this.swipeSelect();
+        }
 
         // draw field
         for (let i = 0; i < rows; i++) {
@@ -540,10 +599,6 @@ class Game {
 
         this.score += gemsToRemove.length * config.settings.correctMovePoints;
 
-        if (config.settings.maxScore && this.score > config.settings.scoreToWin) {
-            this.finishGame();
-        }
-
         let destroyed = 0;
         gemsToRemove.map(gem => {
             this.poolArray.push(this.match3.customDataOf(gem.row, gem.column));
@@ -645,27 +700,6 @@ class Game {
         }
     }
 
-    updateGame() {
-        if (config.settings.fixedLength && this.score > 0) {
-
-            textAlign(RIGHT);
-            fill(config.settings.textColor);
-            noStroke();
-            textSize(this.scoreFontSize * 0.6);
-            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns / 2), 100);
-
-            this.gameTimer -= deltaTime / 1000;
-
-            if (this.gameTimer < 0) {
-                this.gameTimer = 0;
-            }
-
-            if (this.gameTimer <= 0) {
-                this.finishGame();
-            }
-        }
-    }
-
     onMousePress() {
 
     }
@@ -690,7 +724,7 @@ class Game {
 
         this.instructionsFontSize = height / 30;
         this.scoreFontSize = height / 20;
-        this.delayBeforeExit = 0.2;
+        this.delayBeforeExit = 1.6;
 
         // Don'touch these
         this.started = false;

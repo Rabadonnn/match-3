@@ -207,17 +207,12 @@
                     }
                 },
                 {
-                    "key": "maxScore",
-                    "header": "End game after hitting x score",
-                    "type": "boolean"
-                },
-                {
                     "key": "scoreToWin",
                     "header": "Score required to win",
                     "type": "range",
                     "options": {
                         "minValue": 10,
-                        "maxValue": 1000,
+                        "maxValue": 5000,
                         "step": 1
                     }
                 },
@@ -237,14 +232,19 @@
                     }
                 },
                 {
-                    "key": "correctMove",
-                    "header": "Correct move sound effect",
-                    "type": "sound"
+                    "key": "timeUpText",
+                    "header": "Time up text",
+                    "type": "text"
                 },
                 {
-                    "key": "incorrectMove",
-                    "header": "Incorrect move sound effect",
-                    "type": "sound"
+                    "key": "messageTextColor",
+                    "header": "End game message text color",
+                    "type": "color"
+                },
+                {
+                    "key": "winText",
+                    "header": "Win text",
+                    "type": "text"
                 },
                 {
                     "key": "winSound",
@@ -254,6 +254,16 @@
                 {
                     "key": "theme",
                     "header": "Background Music",
+                    "type": "sound"
+                },
+                {
+                    "key": "incorrectSound",
+                    "header": "Incorrect move sound",
+                    "type": "sound"
+                },
+                {
+                    "key": "correctSound",
+                    "header": "Correct move sound",
                     "type": "sound"
                 },
                 {
@@ -382,10 +392,13 @@
             "wrongMovePoints": 5,
             "timeWrongMoves": true,
             "wrongMoveTime":5, 
-            "maxScore": false,
-            "scoreToWin": 1000,
-            "fixedLength": false,
+            "scoreToWin": 100,
+            "fixedLength": true,
             "gameLength": 15,
+            "timeUpText": "Time Up!!!",
+            "messageTextColor": "#000000",
+            "winText": "Congratulations!",
+            "loseText": "Maybe next time.",
             "objects": {
                 "o1": "assets/apple.png",
                 "o2": "assets/banana.png",
