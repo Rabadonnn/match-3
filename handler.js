@@ -41,7 +41,7 @@ $(fontCss).appendTo("head");
 
 window.soundEnabled = true;
 
-window.currentScreen = "gameScreen";
+window.currentScreen = "preGameScreen";
 window.setScreen = function(screenName) {
     window.currentScreen = screenName;
     screenManager.forceUpdate();
@@ -79,6 +79,10 @@ window.preload = function() {
     });
 
     window.sounds.theme = loadSound(config.settings.theme);
+    window.sounds.win = loadSound(config.settings.winSound);
+    window.sounds.lose = loadSound(config.settings.loseSound);
+    window.sounds.correct = loadSound(config.settings.correctSound);
+    window.sounds.incorrect = loadSound(config.settings.incorrectSound);
 }
 
 // load font for p5.js

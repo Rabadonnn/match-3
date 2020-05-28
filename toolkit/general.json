@@ -167,6 +167,16 @@
                     ]
                 },
                 {
+                    "key": "showGrid",
+                    "header": "Display game board",
+                    "type": "boolean"
+                },
+                {
+                    "key": "gridColor",
+                    "header": "Game board color",
+                    "type": "color"
+                },
+                {
                     "key": "correctMovePoints",
                     "header": "Points to increase on correct move",
                     "type": "range",
@@ -280,6 +290,16 @@
                         "maxValue": 1,
                         "stepSize": "0.1"
                     }
+                },
+                {
+                    "key": "sfxVolume",
+                    "header": "Sound effects volume",
+                    "type": "range",
+                    "options": {
+                        "minValue": 0,
+                        "maxValue": 1,
+                        "stepSize": "0.1"
+                    }
                 }
             ]
         },
@@ -381,7 +401,7 @@
             "soundDisabledIcon": "assets/sound_off.png"
         },
         "settings": {
-            "instructions1": "Swipe across 2 items to swap them",
+            "instructions1": "Swipe along 2 items to swap them",
             "instructions2": "Score as much as possible!",
             "instructions3": "Have fun!",
             "textColor": "#000",
@@ -405,8 +425,15 @@
                 "o3": "assets/pear.png",
                 "o4": "assets/cherrys.png"
             },
+            "showGrid": true,
+            "gridColor": "#ffffff",
             "theme": "assets/theme.ogg",
-            "volume": "0.7"
+            "winSound": "assets/win.ogg",
+            "loseSound": "assets/lose.ogg",
+            "incorrectSound": "assets/incorrect.ogg",
+            "correctSound": "assets/correct.ogg",
+            "volume": 0.3,
+            "sfxVolume": 0.7
         },
         "postGameScreen": {
             "scoreText": "Your score is: ",

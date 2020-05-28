@@ -322,6 +322,12 @@ class Game {
 
         if (this.finished) {
             if (!this.startTween) {
+                if (config.settings.fixedLegth && this.score < config.settings.scoreToWin) {
+                    playSound(window.sounds.lose);
+                } else if (config.settings.fixedLength && this.score >= config.settings.scoreToWin) {
+                    playSound(window.sounds.win);
+                }
+
                 shifty.tween({
                     from: {
                         size: 0
@@ -329,7 +335,7 @@ class Game {
                     to: {
                         size: this.scoreFontSize * 1.2
                     },
-                    duration: (this.delayBeforeExit * 0.9) * 1000,
+                    duration: (this.delayBeforeExit * 0.6) * 1000,
                     easing: "elastic",
                     step: state => {
                         this.messageTextSize = state.size;
@@ -343,12 +349,7 @@ class Game {
             fill(color(config.settings.messageTextColor));
             noStroke();
             textSize(this.messageTextSize);
-            let message;
-            if (config.settings.fixedLegth && this.score < config.settings.scoreToWin) {
-                message = config.settings.timeUpText;
-            } else if (config.settings.fixedLength && this.score >= config.settings.scoreToWin) {
-                message = config.settings.winText;
-            }
+            let message = (config.settings.fixedLength && this.score < config.settings.scoreToWin) ? config.settings.timeUpText : config.settings.winText;
             text(message, width / 2, height / 4);
             textStyle(NORMAL);
         }
@@ -358,6 +359,19 @@ class Game {
 
         if (!this.finished) {
             this.swipeSelect();
+        }
+
+        if (config.settings.showGrid) {
+            // stroke(color(config.settings.grid));
+            stroke(255);
+            noFill();
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < columns; j++) {
+                    let x = start.x + (tileSize + tileOffset) * i - tileSize / 2 - tileOffset / 2;
+                    let y = start.y + (tileSize + tileOffset) * j - tileSize / 2 - tileOffset / 2;
+                    rect(x, y, tileSize + tileOffset, tileSize + tileOffset);
+                }
+            }
         }
 
         // draw field
@@ -579,6 +593,7 @@ class Game {
                                 if (this.score < 0) {
                                     this.score = 0;
                                 }
+                                playSound(window.sounds.incorrect);
                             }
                             if (config.settings.timeWrongMoves) {
                                 this.gameTimer -= config.settings.wrongMoveTime;
@@ -598,6 +613,8 @@ class Game {
         let gemsToRemove = this.match3.getMatchList();
 
         this.score += gemsToRemove.length * config.settings.correctMovePoints;
+        this.c_scoreFontSize = this.scoreFontSize * 1.8;
+        playSound(window.sounds.correct);
 
         let destroyed = 0;
         gemsToRemove.map(gem => {
@@ -724,7 +741,7 @@ class Game {
 
         this.instructionsFontSize = height / 30;
         this.scoreFontSize = height / 20;
-        this.delayBeforeExit = 1.6;
+        this.delayBeforeExit = 2.3;
 
         // Don'touch these
         this.started = false;
@@ -848,6 +865,7 @@ class Game {
 
 function playSound(sound) {
     if (window.soundEnabled) {
+        // sound.setVolume(parseFloat(config.settings.sfxVolume));
         sound.play();
     }
 }
