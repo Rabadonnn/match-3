@@ -177,6 +177,11 @@
                     "type": "color"
                 },
                 {
+                    "key": "onboardTextColor",
+                    "header": "On board text color",
+                    "type": "color"
+                },
+                {
                     "key": "correctMovePoints",
                     "header": "Points to increase on correct move",
                     "type": "range",
@@ -385,12 +390,12 @@
     "config": {
         "preGameScreen": {
             "titleText": "Match 3",
-            "titleTextSize": 30,
+            "titleTextSize": 40,
             "playButtonText": "Play",
             "cardColor": "#ffffff",
             "buttonColor": "#000000",
             "buttonTextColor": "#ffffff",
-            "backgroundImage": "assets/background.png",
+            "backgroundImage": "assets/background_2.png",
             "titleImage": "assets/placeholder_logo.jpg",
             "titleImageSize": 200,
             "fontFamily": "Balsamiq Sans",
@@ -427,6 +432,7 @@
             },
             "showGrid": true,
             "gridColor": "#ffffff",
+            "onboardTextColor": "#ffffff",
             "theme": "assets/theme.ogg",
             "winSound": "assets/win.ogg",
             "loseSound": "assets/lose.ogg",

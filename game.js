@@ -4,7 +4,7 @@ const DEBUG = false;
 
 const rows = config.settings.rows;
 const columns = config.settings.columns;
-const tileSize = 40;
+const tileSize = window.mobile() ? 35 : 40;
 const start = {
     x: 300,
     y: 300
@@ -307,7 +307,8 @@ class Game {
             fill(color(config.settings.textColor));
             noStroke();
             textSize(this.scoreFontSize * 0.6);
-            text(this.gameTimer.toFixed(1), width / 2 + floor(tileSize * columns / 2), 100);
+            textFont(config.preGameScreen.fontFamily);
+            text(this.gameTimer.toFixed(1), width - 25, this.scoreFontSize);
 
             this.gameTimer -= deltaTime / 1000;
 
@@ -346,6 +347,7 @@ class Game {
 
             textAlign(CENTER);
             textStyle(BOLD);
+            textFont(config.preGameScreen.fontFamily);
             fill(color(config.settings.messageTextColor));
             noStroke();
             textSize(this.messageTextSize);
@@ -362,8 +364,7 @@ class Game {
         }
 
         if (config.settings.showGrid) {
-            // stroke(color(config.settings.grid));
-            stroke(255);
+            stroke(color(config.settings.gridColor));
             noFill();
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < columns; j++) {
@@ -384,7 +385,7 @@ class Game {
         let item = this.match3.getSelectedItem();
 
         if (item) {
-            stroke(255);
+            stroke(color(config.settings.gridColor));
             noFill();
             rect(start.x + ((tileSize + tileOffset) * item.column) - tileSize / 2, start.y + ((tileSize + tileOffset) * item.row) - tileSize / 2, tileSize, tileSize);
         }
@@ -595,7 +596,7 @@ class Game {
                                 }
                                 playSound(window.sounds.incorrect);
                             }
-                            if (config.settings.timeWrongMoves) {
+                            if (config.settings.timeWrongMoves && this.score > 0) {
                                 this.gameTimer -= config.settings.wrongMoveTime;
                             }
                         } else {
@@ -618,6 +619,20 @@ class Game {
 
         let destroyed = 0;
         gemsToRemove.map(gem => {
+
+            let img = window.images.objects[this.match3.valueAt(gem.row, gem.column)];
+            let x = start.x + gem.column * (tileSize + tileOffset) - tileSize / 2;
+            let y = start.y + gem.row * (tileSize + tileOffset) - tileSize / 2;
+            for (let i = 0; i < 5; i++) {
+                let p = new Particle(x, y,randomParticleAcc(6), random(tileSize * 0.8, tileSize * 1.2));
+                p.setLifespan(random(0.3, 0.5));
+                p.image = img;
+                this.particles.push(p);
+            }
+            
+            let ft = new FloatingText(config.settings.correctMovePoints, x + tileSize / 2, y + tileSize / 2, { x: random(-1, 1), y: -3 }, random(30, 40), color(config.settings.onboardTextColor));
+            this.particles.push(ft);
+
             this.poolArray.push(this.match3.customDataOf(gem.row, gem.column));
 
             destroyed++;
@@ -740,7 +755,7 @@ class Game {
         this.particles = [];
 
         this.instructionsFontSize = height / 30;
-        this.scoreFontSize = height / 20;
+        this.scoreFontSize = height / 18;
         this.delayBeforeExit = 2.3;
 
         // Don'touch these
@@ -844,10 +859,10 @@ class Game {
                 textStyle(NORMAL);
                 noStroke();
                 fill(color(config.settings.textColor));
-                textAlign(CENTER);
+                textAlign(LEFT);
                 textSize(this.c_scoreFontSize);
                 textFont(config.preGameScreen.fontFamily);
-                text(this.score, width / 2, height / 6);
+                text(this.score, 20, this.scoreFontSize * 1.3);
             }
 
             if (this.finished) {
@@ -883,6 +898,60 @@ function setGradient(x, y, w, h, c1, c2) {
     }
 }
 
+class FloatingText {
+    constructor(text, x, y, acc, size, color) {
+        this.x = x;
+        this.text = text;
+        this.y = y;
+        this.acc = acc;
+        this.size = size;
+        this.color = color;
+        this.lifespan = 1;
+        this.iLifespan = 1;
+        this.easing = "easeInQuad";
+        this.dead = false;
+        this.startEase = false;
+        this.font = "Arial";
+        this.style = NORMAL;
+        this.align = CENTER;
+    }
+
+    setLifespan(amt) {
+        this.lifespan = amt;
+        this.iLifespan = amt;
+    }
+
+    draw() {
+        if (!this.startEase) {
+            shifty.tween({
+                from: { size: this.size },
+                to: { size: 0 },
+                duration: this.iLifespan * 1000,
+                easing: this.easing,
+                step: state => { this.size = state.size }
+            });
+            this.startEase = true;
+        }
+
+        this.lifespan -= deltaTime / 1000;
+        this.dead = this.lifespan <= 0;
+
+        if (!this.dead) {
+
+            this.x += this.acc.x;
+            this.y += this.acc.y;
+
+            noStroke();
+            fill(this.color);
+            textAlign(this.align);
+            textSize(this.size);
+            textStyle(this.style);
+            textFont(this.font);
+            text(this.text, this.x, this.y);
+        }
+    }
+}
+
 class Particle {
     constructor(x, y, acc, size, _color) {
         this.x = x;
@@ -899,6 +968,8 @@ class Particle {
         this.image;
         this.rotation = 0;
         this.rotSpeed = 0;
+        this.easing = "easeOutSine";
+        this.startEase = false;
     }
 
     setLifespan(lifespan) {
@@ -907,13 +978,23 @@ class Particle {
     }
 
     draw() {
-        if (this.lifespan > 0) this.size = map(this.lifespan, this.iLifespan, 0, this.iSize, 0);
+
+        if (!this.startEase) {
+            this.startEase = true;
+            shifty.tween({
+                from: { size: this.iSize },
+                to: { size: 0 },
+                duration: this.iLifespan * 1000,
+                easing: this.easing,
+                step: state => { this.size = state.size; }  
+            });
+        }
 
         this.lifespan -= deltaTime / 1000;
 
         this.rotation += this.rotSpeed * deltaTime / 1000;
 
-        if (this.lifespan <= 0) this.dead = true;
+        this.dead = this.lifespan <= 0;
 
         if (!this.dead) {
 
