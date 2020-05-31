@@ -167,6 +167,16 @@
                     ]
                 },
                 {
+                    "key": "specialGemChance",
+                    "header": "Special Gem chance (in percents)",
+                    "type": "range",
+                    "options": {
+                        "minValue": 0,
+                        "maxValue": 50,
+                        "stepSize": 1
+                    }
+                },
+                {
                     "key": "showGrid",
                     "header": "Display game board",
                     "type": "boolean"
@@ -430,6 +440,7 @@
                 "o3": "assets/pear.png",
                 "o4": "assets/cherrys.png"
             },
+            "specialGemChance": 10,
             "showGrid": true,
             "gridColor": "#ffffff",
             "onboardTextColor": "#ffffff",

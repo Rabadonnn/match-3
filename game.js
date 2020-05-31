@@ -152,16 +152,6 @@ class Match3 {
         }]
     }
  
-    specialInRow(row) {
-        for (let i = 0; i < this.columns; i++) {
-            let condition =  this.customDataOf(row, i) && this.customDataOf(row, i).special == true;
-            if (condition) {
-                this.customDataOf(row, i).makeNormal();
-                return true;
-            }
-        }
-    }
-
     // return the items part of a match in the board as an array of {row, column} object
     getMatchList() {
         let matches = [];
@@ -759,7 +749,7 @@ class Game {
 
             let tile = new Tile(x, y, value);
             
-            if (random(100) < 20) {
+            if (random(100) < parseFloat(config.settings.specialGemChance)) {
                 tile.makeSpecial();
             }
 
