@@ -53,7 +53,7 @@ class Match3 {
         }
         return false;
     }
-
+   
     // returns true if the item at (row, column) is part of a match
     isPartOfMatch(row, column) {
         return this.isPartOfHorizontalMatch(row, column) || this.isPartOfVerticalMatch(row, column);
@@ -151,10 +151,21 @@ class Match3 {
             deltaColumn: column2 - column
         }]
     }
+ 
+    specialInRow(row) {
+        for (let i = 0; i < this.columns; i++) {
+            let condition =  this.customDataOf(row, i) && this.customDataOf(row, i).special == true;
+            if (condition) {
+                this.customDataOf(row, i).makeNormal();
+                return true;
+            }
+        }
+    }
 
     // return the items part of a match in the board as an array of {row, column} object
     getMatchList() {
         let matches = [];
+        let destroyRows = [];
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
                 if (this.isPartOfMatch(i, j)) {
@@ -162,9 +173,22 @@ class Match3 {
                         row: i,
                         column: j
                     });
+                    if (this.customDataOf(i, j) && this.customDataOf(i, j).special) {
+                        destroyRows.push(i);
+                    }
                 }
             }
         }
+        
+        destroyRows.map(row => {
+            for (let i = 0; i < this.columns; i++) {
+                matches.push({
+                    row: row,
+                    column: i
+                });
+            }
+        });
+            
         return matches;
     }
 
@@ -248,15 +272,54 @@ class Tile {
         this.y = y;
         this.value = value;
         this.scale = 1;
+        this.fitSize = tileSize;
+    }
+
+    makeSpecial() {
+        this.special = true;
+        this.growDuration = 0.3;
+        this.growCd = this.growDuration;
+        this.grow = true;
+        this.minSize = tileSize * 0.9;
+        this.maxSize = tileSize * 1.1;
+        this.minRot = -12;
+        this.maxRot = 12;
+        if (random(100) < 50) {
+            [this.minSize, this.maxSize] = [this.maxSize, this.minSize];
+            [this.minRot, this.maxRot] = [this.maxRot, this.minRot];
+        }
     }
 
     draw() {
+
+        if (this.special) {
+            if (this.grow) {
+                this.fitSize = map(this.growCd, this.growDuration, 0, this.minSize, this.maxSize); 
+                this.rotation = map(this.growCd, this.growDuration, 0, this.minRot, this.maxRot);
+            } else {
+                this.fitSize = map(this.growCd, this.growDuration, 0, this.maxSize, this.minSize);
+                this.rotation = map(this.growCd, this.growDuration, 0, this.maxRot, this.minRot);
+            }
+
+            this.growCd -= deltaTime / 1000;
+            if (this.growCd < 0) {
+                this.growCd = this.growDuration;
+                this.grow = !this.grow;
+            }
+        }
+
+        if (!this.special) {
+            this.fitSize = tileSize;
+            this.rotation = 0;
+        }
+
         let img = window.images.objects[this.value];
-        let size = calculateAspectRatioFit(img.width, img.height, tileSize, tileSize);
+        let size = calculateAspectRatioFit(img.width, img.height, this.fitSize, this.fitSize);
 
         push();
         translate(start.x + this.y * (tileSize + tileOffset), start.y + this.x * (tileSize + tileOffset));
         scale(this.scale);
+        rotate(radians(this.rotation));
         imageMode(CENTER);
         image(img, 0, 0, size.width, size.height);
         imageMode(CORNER);
@@ -286,7 +349,6 @@ class Game {
 
         this.canPick = true;
         this.dragging = false;
-        this.poolArray = [];
 
         if (config.settings.fixedLength) {
             this.gameTimer = config.settings.gameLength;
@@ -631,9 +693,8 @@ class Game {
             }
             
             let ft = new FloatingText(config.settings.correctMovePoints, x + tileSize / 2, y + tileSize / 2, { x: random(-1, 1), y: -3 }, random(30, 40), color(config.settings.onboardTextColor));
+            ft.font = config.preGameScreen.fontFamily;
             this.particles.push(ft);
-
-            this.poolArray.push(this.match3.customDataOf(gem.row, gem.column));
 
             destroyed++;
 
@@ -692,11 +753,15 @@ class Game {
         replenishMovements.map(move => {
             moved++;
 
-            let tile = this.poolArray.pop();
-            tile.scale = 1;
-            tile.x = move.row - move.deltaRow + 1;
-            tile.y = move.column;
-            tile.value = this.match3.valueAt(move.row, move.column);
+            let x = move.row - move.deltaRow + 1;
+            let y = move.column;
+            let value = this.match3.valueAt(move.row, move.column);
+
+            let tile = new Tile(x, y, value);
+            
+            if (random(100) < 20) {
+                tile.makeSpecial();
+            }
 
             this.match3.setCustomData(move.row, move.column, tile);
 

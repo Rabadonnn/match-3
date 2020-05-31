@@ -419,7 +419,7 @@
             "wrongMoveTime":5, 
             "scoreToWin": 100,
             "fixedLength": true,
-            "gameLength": 15,
+            "gameLength": 35,
             "timeUpText": "Time Up!!!",
             "messageTextColor": "#000000",
             "winText": "Congratulations!",
