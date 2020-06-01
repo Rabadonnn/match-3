@@ -1,9 +1,9 @@
+var React = require('react');
+var ReactDOM = require('react-dom');
+
 let config = require("visual-config-exposer").default;
 
 let $ = require("jquery")
-
-let PreGameScreen = require("./pregame");
-let PostGameScreen = require("./postgame");
 
 window.mobile = () => {
     if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
@@ -13,6 +13,9 @@ window.mobile = () => {
         return false;
     }
 }
+
+let PreGameScreen = require("./pregame");
+let PostGameScreen = require("./postgame");
 
 let Game = require("./game");
 
@@ -41,7 +44,7 @@ $(fontCss).appendTo("head");
 
 window.soundEnabled = true;
 
-window.currentScreen = "gameScreen";
+window.currentScreen = "postGameScreen";
 window.setScreen = function(screenName) {
     window.currentScreen = screenName;
     screenManager.forceUpdate();
@@ -65,6 +68,8 @@ window.setEndScreenWithScore = function(score) {
     window.score = score;
     window.setScreen("postGameScreen");
 }
+
+window.score = 100;
 
 let game;
 

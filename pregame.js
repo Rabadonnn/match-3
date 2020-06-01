@@ -1,3 +1,6 @@
+var React = require('react');
+var ReactDOM = require('react-dom');
+
 let config = require("visual-config-exposer").default;
 
 let buttonStyle = {

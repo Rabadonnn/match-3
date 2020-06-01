@@ -537,7 +537,7 @@ class Game {
                         step: state => {
                             try {
                                 this.match3.customDataOf(this.row, this.col).scale = state.scale;
-                            } catch {}
+                            } catch(err) {}
                         }
                     });
                 }
