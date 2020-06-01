@@ -156,6 +156,9 @@ class PostGameScreen extends React.Component {
                             console.log(this.state);
                             database.postScoreData(this.state).then(res => {
                                 console.log("post: ", res);
+                                database.getLeaderBoard().then(lbData => {
+                                    console.log("data", lbData);
+                                })
                             });
                         } }
                     >
