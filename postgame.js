@@ -1,17 +1,13 @@
 let React = require('react');
 let ReactDOM = require('react-dom');
 let styled = require("styled-components").default;
+let ReactTable = require("react-table");
+
 let Database = require("database-api").default;
 
 let config = require("visual-config-exposer").default.postGameScreen;
 
 let database = new Database();
-
-console.log(database);
-
-database.getLeaderBoard().then(res => {
-    console.log(res);
-})
 
 function getCardHeight() {
     let height = 150;
@@ -24,9 +20,11 @@ function getCardHeight() {
     return height;
 }
 
+const cardWidth = window.mobile() ? "300px" : "350px";
+
 const Card = styled.div`
     background-color: ${props => props.bgColor};
-    width: ${ window.mobile() ? "300px" : "350px" };
+    width: ${ cardWidth };
     text-align: center;
     position: absolute;
     top: 0px;
@@ -66,10 +64,31 @@ const Button = styled.button`
     ${props => props.extra}
 `;
 
+const Table = styled.table`
+    width: ${ cardWidth  }
+`;
+
+const Tbody = styled.tbody`
+    display: block;
+    height: ${ props => props.height };
+    overflow-y: auto;
+    table-layout: auto;
+    width: 100%;
+`;
+
+const Tr = styled.tr`
+`;
+
+const Td = styled.td`
+    ${props => props.extra}
+`;
+
 class PostGameScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            showLeaderboard: false,
+            leaderboardData: null,
             score: window.score,
             name: "",
             email: ""
@@ -80,6 +99,7 @@ class PostGameScreen extends React.Component {
         const card1Height = getCardHeight();
         const card2Height = 65;
         let card3Height = 0;
+        const leaderboardHeight = 400; 
 
         if (config.showText) {
             card3Height += 42;
@@ -89,82 +109,133 @@ class PostGameScreen extends React.Component {
         }
         
         const card1Top = (config.showText || config.showCTA) ? -(card1Height + card2Height + card3Height) * 0.6 : 0;
-        const card2Top = card1Top + card1Height * 1.5 - 10;
+        const card2Top = card1Top + (this.state.showLeaderboard ? leaderboardHeight : card1Height) + 120;
         const card3Top = card2Top + card2Height + card3Height + 90;
 
         return (
             <div>
-                <Card
-                    bgColor = "white"
-                    height = { card1Height + "px" }
-                    extra = { `top: ${card1Top}px;` }
-                >
-                    <Text
-                        fontSize = "30px"
-                        fontColor = { config.textColor }
+                {
+                    this.state.showLeaderboard == true &&
+                    <Card
+                        bgColor = { config.cardColor }
+                        height = { leaderboardHeight }
+                        extra = { `top: ${card1Top}px;`  }
                     >
-                        { config.scoreText + window.score }
-                    </Text>
-                    {
-                        config.submitName && 
-                        <div>
-                            <Text
-                                fontSize = "20px"
-                                fontColor = { config.textColor }
-                                extra = "margin-top: 20px; text-align: left; margin-left: 30px;"
-                            >
-                                Name:
-                            </Text>
-                            <SubmitBox
-                                fontSize = "18px"
-                                fontColor = { config.textColor }
-                                extra = "width: 80%;"
-                                onChange = { (ev) => {
-                                    this.setState({ name: ev.target.value })
-                                } }
-                            >
-                            </SubmitBox>
-                        </div>
-                    }
-                    {
-                        config.submitEmail &&
-                        <div>
-                            <Text
-                                fontSize = "20px"
-                                fontColor = { config.textColor }
-                                extra = "margin-top: 20px; text-align: left; margin-left: 30px;"
-                            >
-                                Email:
-                            </Text>
-                             <SubmitBox
-                                fontSize = "18px"
-                                fontColor = { config.textColor }
-                                extra = "width: 80%;"
-                                onChange = { (ev) => {
-                                    this.setState({ email: ev.target.value })
-                                } }
-                            >
-                            </SubmitBox>
-                        </div>
-                    }
-                    <Button
-                        id = "button"
-                        fontSize = "25px"
-                        height = "60px"
-                        extra = "margin-top: 20px;"
-                        onClick = { () => {
-                            console.log(this.state);
-                            database.postScoreData(this.state).then(res => {
-                                console.log("post: ", res);
-                                database.getLeaderBoard().then(lbData => {
-                                    console.log("data", lbData);
-                                })
-                            });
-                        } }
+                        <Text
+                            fontSize = "25px"
+                            fontColor = { config.textColor }
+                        >
+                            Leaderboard
+                        </Text>
+                        {
+                            this.state.leaderboardData != null &&
+                            <Table>
+                                <Tbody
+                                    height = { (leaderboardHeight - 50) + "px; font-size: 18px"  }
+                                >
+                                {
+                                    this.state.leaderboardData.map((entry, index) => {
+                                        return (
+                                            <Tr key={index}>
+                                                <Td extra = { `width: ${cardWidth}` }>
+                                                    { index + 1 + ". " + entry.display_name }
+                                                </Td>
+                                                <Td extra="text-align: right;">
+                                                    { entry.score }
+                                                </Td>
+                                            </Tr>
+                                        )
+                                    })
+                                }
+                                </Tbody>
+                            </Table>
+                        }
+                        </Card>
+                }
+                {
+                    this.state.showLeaderboard == false && 
+                    <Card
+                        bgColor = { config.cardColor }
+                        height = { card1Height + "px" }
+                        extra = { `top: ${card1Top}px;` }
                     >
-                        { config.submitScoreText  }
-                    </Button>
-                </Card>
+                        <Text
+                            fontSize = "30px"
+                            fontColor = { config.textColor }
+                        >
+                            { config.scoreText + window.score }
+                        </Text>
+                        {
+                            config.submitName && 
+                            <div>
+                                <Text
+                                    fontSize = "20px"
+                                    fontColor = { config.textColor }
+                                    extra = "margin-top: 20px; text-align: left; margin-left: 30px;"
+                                >
+                                    Name:
+                                </Text>
+                                <SubmitBox
+                                    fontSize = "18px"
+                                    fontColor = { config.textColor }
+                                    extra = "width: 80%;"
+                                    onChange = { (ev) => {
+                                        this.setState({ name: ev.target.value })
+                                    } }
+                                >
+                                </SubmitBox>
+                            </div>
+                        }
+                        {
+                            config.submitEmail &&
+                            <div>
+                                <Text
+                                    fontSize = "20px"
+                                    fontColor = { config.textColor }
+                                    extra = "margin-top: 20px; text-align: left; margin-left: 30px;"
+                                >
+                                    Email:
+                                </Text>
+                                 <SubmitBox
+                                    fontSize = "18px"
+                                    fontColor = { config.textColor }
+                                    extra = "width: 80%;"
+                                    onChange = { (ev) => {
+                                        this.setState({ email: ev.target.value })
+                                    } }
+                                >
+                                </SubmitBox>
+                            </div>
+                        }
+                        <Button
+                            id = "button"
+                            fontSize = "25px"
+                            height = "60px"
+                            extra = "margin-top: 20px;"
+                            onClick = { () => {
+                                let scoreData = { "score": window.score }
+                                
+                                if (this.state.name != "") {
+                                    scoreData["display_name"] = this.state.name;
+                                }
+                                if (this.state.email != "") {
+                                    scoreData["email"] = this.state.email;
+                                }
+
+                                database.postScoreData(scoreData).then(res => {
+                                    this.setState({showLeaderboard: true});
+                                    
+                                    database.getLeaderBoard().then(data => {
+                                        this.setState({leaderboardData: data});
+                                    })
+                                });
+                            } }
+                        >
+                            { config.submitScoreText  }
+                        </Button>
+                    </Card>
+                }
+                
                 <Card
                     bgColor = "transparent"
                     height = { card2Height  }
@@ -184,7 +255,7 @@ class PostGameScreen extends React.Component {
                 {
                     (config.showText || config.showCTA) &&
                     <Card
-                        bgColor = "white"
+                        bgColor = { config.cardColor } 
                         height = { card3Height }
                         extra = { `top: ${card3Top}px; padding: 25px 10px; maxn-height: ${card3Height}px` }
                     >

@@ -18,6 +18,7 @@
         "database-api": "git+https://gitlab.com/uchiha.jay007/database-api.git",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
+        "react-table": "^7.1.0",
         "styled-components": "^5.1.1"
     },
     "devDependencies": {
