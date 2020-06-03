@@ -15,7 +15,7 @@ window.mobile = () => {
 }
 
 let PreGameScreen = require("./pregame");
-let PostGameScreen = require("./postgame");
+let PostGameScreen = require("./postgame").postGameScreen;
 
 let Game = require("./game");
 
@@ -44,7 +44,7 @@ $(fontCss).appendTo("head");
 
 window.soundEnabled = true;
 
-window.currentScreen = "preGameScreen";
+window.currentScreen = "postGameScreen";
 window.setScreen = function(screenName) {
     window.currentScreen = screenName;
     screenManager.forceUpdate();
@@ -111,6 +111,11 @@ window.draw = function() {
         window.sounds.theme.play();
     }
     game.draw();
+}
+
+window.touchMoved = () => {
+    if (window.currentScreen == "gameScreen") return false;
+    return true;
 }
 
 window.windowResized = () => {

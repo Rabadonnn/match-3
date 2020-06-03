@@ -1,7 +1,6 @@
 let React = require('react');
 let ReactDOM = require('react-dom');
 let styled = require("styled-components").default;
-let ReactTable = require("react-table");
 
 let Database = require("database-api").default;
 
@@ -10,7 +9,11 @@ let config = require("visual-config-exposer").default.postGameScreen;
 let database = new Database();
 
 function getCardHeight() {
-    let height = 150;
+    let height = 50;
+    if (!config.showLeadeboardButtonPostGameScreen) {
+        return height;
+    }
+    height += 80;
     if (config.submitName) {
         height += 60;
     }
@@ -20,7 +23,7 @@ function getCardHeight() {
     return height;
 }
 
-const cardWidth = window.mobile() ? "300px" : "350px";
+const cardWidth = window.mobile() ? "280px" : "350px";
 
 const Card = styled.div`
     background-color: ${props => props.bgColor};
@@ -83,6 +86,42 @@ const Td = styled.td`
     ${props => props.extra}
 `;
 
+class Leaderboard extends React.Component {
+    render() {
+        return (
+            <div>
+            <Text
+                fontSize = "25px"
+                fontColor = { config.textColor }
+            >
+                Leaderboard
+            </Text>
+ 
+            <Table>
+                <Tbody
+                    height = { (this.props.height) + "px; font-size: 18px"  }
+                >
+                {
+                    this.props.data.map((entry, index) => {
+                        return (
+                            <Tr key={index}>
+                                <Td extra = { `width: ${cardWidth}` }>
+                                    { index + 1 + ". " + entry.display_name }
+                                </Td>
+                                <Td extra="text-align: right;">
+                                    { entry.score }
+                                </Td>
+                            </Tr>
+                        )
+                    })
+                }
+                </Tbody>
+            </Table>
+            </div>
+        );
+    }
+}
+
 class PostGameScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -92,7 +131,7 @@ class PostGameScreen extends React.Component {
             score: window.score,
             name: "",
             email: ""
-        }
+        };
     }
 
     render() {
@@ -108,7 +147,10 @@ class PostGameScreen extends React.Component {
             card3Height += 100;
         }
         
-        const card1Top = (config.showText || config.showCTA) ? -(card1Height + card2Height + card3Height) * 0.6 : 0;
+        let card1Top = (config.showText || config.showCTA) ? -(card1Height + card2Height + card3Height) * 0.6 : 0;
+        if (!config.showLeadeboardButtonPostGameScreen) {
+            card1Top -= card1Height * 2;
+        }
         const card2Top = card1Top + (this.state.showLeaderboard ? leaderboardHeight : card1Height) + 120;
         const card3Top = card2Top + card2Height + card3Height + 90;
 
@@ -121,34 +163,13 @@ class PostGameScreen extends React.Component {
                         height = { leaderboardHeight }
                         extra = { `top: ${card1Top}px;`  }
                     >
-                        <Text
-                            fontSize = "25px"
-                            fontColor = { config.textColor }
-                        >
-                            Leaderboard
-                        </Text>
                         {
                             this.state.leaderboardData != null &&
-                            <Table>
-                                <Tbody
-                                    height = { (leaderboardHeight - 50) + "px; font-size: 18px"  }
-                                >
-                                {
-                                    this.state.leaderboardData.map((entry, index) => {
-                                        return (
-                                            <Tr key={index}>
-                                                <Td extra = { `width: ${cardWidth}` }>
-                                                    { index + 1 + ". " + entry.display_name }
-                                                </Td>
-                                                <Td extra="text-align: right;">
-                                                    { entry.score }
-                                                </Td>
-                                            </Tr>
-                                        )
-                                    })
-                                }
-                                </Tbody>
-                            </Table>
+                            <Leaderboard
+                                height = { leaderboardHeight - 50  }
+                                data = { this.state.leaderboardData }
+                            >
+                            </Leaderboard>
                         }
                         </Card>
                 }
@@ -165,6 +186,9 @@ class PostGameScreen extends React.Component {
                         >
                             { config.scoreText + window.score }
                         </Text>
+                        {
+                        config.showLeadeboardButtonPostGameScreen &&
+                        <div>
                         {
                             config.submitName && 
                             <div>
@@ -211,7 +235,7 @@ class PostGameScreen extends React.Component {
                             id = "button"
                             fontSize = "25px"
                             height = "60px"
-                            extra = "margin-top: 20px;"
+                            extra = "margin-top: 10px;"
                             onClick = { () => {
                                 let scoreData = { "score": window.score }
                                 
@@ -226,13 +250,18 @@ class PostGameScreen extends React.Component {
                                     this.setState({showLeaderboard: true});
                                     
                                     database.getLeaderBoard().then(data => {
-                                        this.setState({leaderboardData: data});
+
+                                        let sortedData = data.sort((a, b) => parseInt(a.score) < parseInt(b.score));
+
+                                        this.setState({leaderboardData: sortedData});
                                     })
                                 });
                             } }
                         >
                             { config.submitScoreText  }
                         </Button>
+                        </div>
+                        }
                     </Card>
                 }
                 
@@ -298,4 +327,5 @@ class PostGameScreen extends React.Component {
     }
 }
 
-module.exports = PostGameScreen;
+exports.postGameScreen = PostGameScreen;
+exports.leaderboard = Leaderboard;
