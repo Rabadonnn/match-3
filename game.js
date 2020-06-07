@@ -935,7 +935,6 @@ class Game {
 
 function playSound(sound) {
     if (window.soundEnabled) {
-        // sound.setVolume(parseFloat(config.settings.sfxVolume));
         sound.play();
     }
 }

@@ -54,8 +54,6 @@ window.restartGame = () => {
     game = new Game();
     
     if (window.soundEnabled) {
-        window.sounds.theme.setLoop(true);
-        window.sounds.theme.setVolume(parseFloat(config.settings.volume));
         window.sounds.theme.play();
     }
 
@@ -83,11 +81,29 @@ window.preload = function() {
         return loadImage(config.settings.objects[k]);
     });
 
-    window.sounds.theme = loadSound(config.settings.theme);
-    window.sounds.win = loadSound(config.settings.winSound);
-    window.sounds.lose = loadSound(config.settings.loseSound);
-    window.sounds.correct = loadSound(config.settings.correctSound);
-    window.sounds.incorrect = loadSound(config.settings.incorrectSound);
+    window.sounds.theme = new Howl({
+        src: [config.settings.theme],
+        loop: true,
+        volume: parseFloat(config.settings.volume) 
+    });
+
+    let sfxVolume = parseFloat(config.settings.sfxVolume);
+    window.sounds.win = new Howl({
+        src: [config.settings.winSound],
+        volume: sfxVolume
+    });
+    window.sounds.lose = new Howl({
+        src: [config.settings.loseSound],
+        volume: sfxVolume
+    });
+    window.sounds.correct = new Howl({
+        src: [config.settings.correctSound],
+        volume: sfxVolume
+    });
+    window.sounds.incorrect = new Howl({
+        src: [config.settings.incorrectSound],
+        volume: sfxVolume
+    });
 }
 
 // load font for p5.js
@@ -105,11 +121,12 @@ window.setup = function() {
 }
 
 window.draw = function() {
-    if (window.currentScreen != "gameScreen" && window.sounds.theme.isPlaying()) {
+    if (window.currentScreen != "gameScreen" && window.sounds.theme.playing()) {
         window.sounds.theme.stop();
-    } else if (window.currentScreen == "gameScreen" && !window.sounds.theme.isPlaying() && window.soundEnabled) {
+    } else if (window.currentScreen == "gameScreen" && !window.sounds.theme.playing() && window.soundEnabled) {
         window.sounds.theme.play();
     }
+
     game.draw();
 }
 
