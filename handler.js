@@ -81,32 +81,29 @@ window.preload = function() {
         return loadImage(config.settings.objects[k]);
     });
 
+    Howler.autoUnlock = true;
+
     window.sounds.theme = new Howl({
         src: [config.settings.theme],
         loop: true,
-        html5: false,
         volume: parseFloat(config.settings.volume) 
     });
 
     let sfxVolume = parseFloat(config.settings.sfxVolume);
     window.sounds.win = new Howl({
         src: [config.settings.winSound],
-        html5: false,
         volume: sfxVolume
     });
     window.sounds.lose = new Howl({
         src: [config.settings.loseSound],
-        html5: false,
         volume: sfxVolume
     });
     window.sounds.correct = new Howl({
         src: [config.settings.correctSound],
-        html5: false,
         volume: sfxVolume
     });
     window.sounds.incorrect = new Howl({
         src: [config.settings.incorrectSound],
-        html5: false,
         volume: sfxVolume
     });
 }
