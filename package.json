@@ -16,6 +16,7 @@
     "license": "ISC",
     "dependencies": {
         "database-api": "git+https://gitlab.com/uchiha.jay007/database-api.git",
+        "howler": "^2.2.0",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-table": "^7.1.0",

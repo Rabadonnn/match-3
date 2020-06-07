@@ -1,10 +1,9 @@
 var React = require('react');
-    
 var ReactDOM = require('react-dom');
-
 let config = require("visual-config-exposer").default;
-
 let $ = require("jquery")
+
+let { Howler, Howl } = require("howler");
 
 window.mobile = () => {
     if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) ||
@@ -74,40 +73,37 @@ let game;
 window.images = {};
 window.sounds = {};
 
-// load sounds
-window.sounds.theme = new Howl({
-    src: [config.settings.theme],
-    loop: true,
-    volume: parseFloat(config.settings.volume),
-    preload: true,
-    onplayerror: function() {
-        window.sounds.theme.once('unlock', function() {
-            window.sounds.theme.play();
-        });
-    }
-});
+function loadSounds() {
+    // load sounds
+    window.sounds.theme = new Howl({
+        src: [config.settings.theme],
+        loop: true,
+        volume: parseFloat(config.settings.volume),
+        onplayerror: function() {
+            window.sounds.theme.once('unlock', function() {
+                window.sounds.theme.play();
+            });
+        }
+    });
 
-let sfxVolume = parseFloat(config.settings.sfxVolume);
-window.sounds.win = new Howl({
-    src: [config.settings.winSound],
-    volume: sfxVolume,
-    preload: true
-});
-window.sounds.lose = new Howl({
-    src: [config.settings.loseSound],
-    volume: sfxVolume,
-    preload: true
-});
-window.sounds.correct = new Howl({
-    src: [config.settings.correctSound],
-    volume: sfxVolume,
-    preload: true
-});
-window.sounds.incorrect = new Howl({
-    src: [config.settings.incorrectSound],
-    volume: sfxVolume,
-    preload: true
-});
+    let sfxVolume = parseFloat(config.settings.sfxVolume);
+    window.sounds.win = new Howl({
+        src: [config.settings.winSound],
+        volume: sfxVolume,
+    });
+    window.sounds.lose = new Howl({
+        src: [config.settings.loseSound],
+        volume: sfxVolume,
+    });
+    window.sounds.correct = new Howl({
+        src: [config.settings.correctSound],
+        volume: sfxVolume
+    });
+    window.sounds.incorrect = new Howl({
+        src: [config.settings.incorrectSound],
+        volume: sfxVolume,
+    });
+}
 
 window.preload = function() {
     window.images.background = loadImage(config.preGameScreen["backgroundImage"])
@@ -128,6 +124,9 @@ function loadGoogleFont() {
 window.setup = function() {
     loadGoogleFont();
     createCanvas(window.innerWidth, window.innerHeight);
+
+    loadSounds();
+
     game = new Game();
 }
 
