@@ -4,12 +4,28 @@ const DEBUG = false;
 
 const rows = config.settings.rows;
 const columns = config.settings.columns;
-const tileSize = window.mobile() ? 35 : 40;
 const start = {
     x: 300,
     y: 300
 };
 const tileOffset = 10;
+
+function getTileSize() {
+    let vertical = window.innerWidth <= window.innerHeight;
+    let tileNo = Math.max(rows, columns);
+    let horizontalOffset = 100;
+    let verticalOffset = 250;
+    var ts;
+    if (vertical) {
+        ts = (window.innerWidth - horizontalOffset) / tileNo;
+    } else {
+        ts = (window.innerHeight - verticalOffset) / tileNo;
+    }
+    return ts;
+}
+
+// this is being recalculated in calcBgImageSize()
+let tileSize = getTileSize();
 
 // https://www.emanueleferonato.com/2018/12/17/pure-javascript-class-to-handle-match3-games-like-bejeweled-ready-to-communicate-with-your-favorite-html5-framework-phaser-3-example-included/
 
@@ -353,6 +369,9 @@ class Game {
     }
 
     updateGame() {
+
+        this.drawBoard();
+
         if (config.settings.fixedLength && this.score > 0) {
 
             textAlign(RIGHT);
@@ -414,7 +433,9 @@ class Game {
         if (!this.finished) {
             this.swipeSelect();
         }
+    }
 
+    drawBoard() {
         if (config.settings.showGrid) {
             stroke(color(config.settings.gridColor));
             noFill();
@@ -850,6 +871,8 @@ class Game {
         // also calculate board x - y
         start.x = windowWidth / 2 - floor(rows / 2) * (tileSize + tileOffset);
         start.y = windowHeight / 2 - floor(columns / 2) * (tileSize + tileOffset);
+
+        tileSize = getTileSize();
     }
 
     draw() {
@@ -903,9 +926,9 @@ class Game {
                 textSize(this.c_instructionsFontSize);
                 textAlign(CENTER);
 
-                text(config.settings.instructions1, width / 2, height / 10);
-                text(config.settings.instructions2, width / 2, (height / 10) * 1.5);
-                text(config.settings.instructions3, width / 2, (height / 10) * 2);
+                text(config.settings.instructions1, width / 2, (height / 2) - this.instructionsFontSize * 1.7);
+                text(config.settings.instructions2, width / 2, (height / 2));
+                text(config.settings.instructions3, width / 2, (height / 2) + this.instructionsFontSize * 1.7);
             }
 
             if (this.started) {
