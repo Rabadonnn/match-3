@@ -957,8 +957,12 @@ class Game {
 // Helper functions
 
 function playSound(sound) {
-    if (window.soundEnabled) {
-        sound.play();
+    try {   
+        if (window.soundEnabled) {
+            sound.play();
+        }
+    } catch (err) {
+        console.log("error playing sound");
     }
 }
 
