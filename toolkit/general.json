@@ -50,7 +50,7 @@
                         "maxValue": 400,
                         "stepSize": "1"
                     }
-                }, 
+                },
                 {
                     "key": "cardColor",
                     "header": "Card Color",
@@ -143,7 +143,7 @@
                     "key": "objects",
                     "header": "Objects",
                     "type": "array",
-                    "fields":  [
+                    "fields": [
                         {
                             "key": "o1",
                             "header": "Object 1",
@@ -365,6 +365,11 @@
                     "type": "boolean"
                 },
                 {
+                    "key": "showTextCondition",
+                    "header": "Only show custom text when score is greater than Win Score",
+                    "type": "boolean"
+                },
+                {
                     "key": "customText",
                     "header": "Custom text",
                     "type": "text"
@@ -446,9 +451,9 @@
             "wrongMoves": true,
             "wrongMovePoints": 5,
             "timeWrongMoves": true,
-            "wrongMoveTime":5, 
+            "wrongMoveTime": 5,
             "scoreToWin": 100,
-            "fixedLength": false,
+            "fixedLength": true,
             "gameLength": 30,
             "timeUpText": "Time Up!!!",
             "messageTextColor": "#000000",
@@ -464,11 +469,11 @@
             "showGrid": true,
             "gridColor": "#ffffff",
             "onboardTextColor": "#ffffff",
-            "theme": "assets/theme.ogg",
-            "winSound": "assets/win.ogg",
-            "loseSound": "assets/lose.ogg",
-            "incorrectSound": "assets/incorrect.ogg",
-            "correctSound": "assets/correct.ogg",
+            "theme": "assets/theme.mp3",
+            "winSound": "assets/win.mp3",
+            "loseSound": "assets/lose.mp3",
+            "incorrectSound": "assets/incorrect.mp3",
+            "correctSound": "assets/correct.mp3",
             "volume": 0.3,
             "sfxVolume": 0.7
         },
@@ -483,6 +488,7 @@
             "submitScoreText": "Submit score",
             "leaderboardButtonText": "Leaderboard",
             "showText": true,
+            "showTextCondition": true,
             "customText": "Hello world",
             "submitName": true,
             "submitEmail": true,
@@ -493,4 +499,3 @@
         }
     }
 }
-
