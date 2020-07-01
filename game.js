@@ -343,7 +343,10 @@ class Tile {
         let size = calculateAspectRatioFit(img.width, img.height, this.fitSize, this.fitSize);
 
         push();
-        translate(start.x + this.y * (tileSize + tileOffset), start.y + this.x * (tileSize + tileOffset));
+        translate(
+            start.x + this.y * (tileSize + tileOffset),
+            start.y + this.x * (tileSize + tileOffset)
+        );
         scale(this.scale);
         rotate(radians(this.rotation));
         imageMode(CENTER);
@@ -414,7 +417,10 @@ class Game {
             if (!this.startTween) {
                 if (config.settings.fixedLegth && this.score < config.settings.scoreToWin) {
                     playSound(window.sounds.lose);
-                } else if (config.settings.fixedLength && this.score >= config.settings.scoreToWin) {
+                } else if (
+                    config.settings.fixedLength &&
+                    this.score >= config.settings.scoreToWin
+                ) {
                     playSound(window.sounds.win);
                 }
 
@@ -517,16 +523,42 @@ class Game {
                         },
                     });
                 } else {
-                    if (this.match3.areTheSame(row, col, this.selectedGem.row, this.selectedGem.column)) {
+                    if (
+                        this.match3.areTheSame(
+                            row,
+                            col,
+                            this.selectedGem.row,
+                            this.selectedGem.column
+                        )
+                    ) {
                         this.match3.customDataOf(row, col).scale = 1;
                         this.match3.deleselectItem();
                     } else {
-                        if (this.match3.areNext(row, col, this.selectedGem.row, this.selectedGem.column)) {
-                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;
+                        if (
+                            this.match3.areNext(
+                                row,
+                                col,
+                                this.selectedGem.row,
+                                this.selectedGem.column
+                            )
+                        ) {
+                            this.match3.customDataOf(
+                                this.selectedGem.row,
+                                this.selectedGem.column
+                            ).scale = 1;
                             this.match3.deleselectItem();
-                            this.swapGems(row, col, this.selectedGem.row, this.selectedGem.column, true);
+                            this.swapGems(
+                                row,
+                                col,
+                                this.selectedGem.row,
+                                this.selectedGem.column,
+                                true
+                            );
                         } else {
-                            this.match3.customDataOf(this.selectedGem.row, this.selectedGem.column).scale = 1;
+                            this.match3.customDataOf(
+                                this.selectedGem.row,
+                                this.selectedGem.column
+                            ).scale = 1;
                             shifty.tween({
                                 from: {
                                     scale: 1,
@@ -721,7 +753,12 @@ class Game {
             let x = start.x + gem.column * (tileSize + tileOffset) - tileSize / 2;
             let y = start.y + gem.row * (tileSize + tileOffset) - tileSize / 2;
             for (let i = 0; i < 5; i++) {
-                let p = new Particle(x, y, randomParticleAcc(6), random(tileSize * 0.8, tileSize * 1.2));
+                let p = new Particle(
+                    x,
+                    y,
+                    randomParticleAcc(6),
+                    random(tileSize * 0.8, tileSize * 1.2)
+                );
                 p.setLifespan(random(0.3, 0.5));
                 p.image = img;
                 this.particles.push(p);
@@ -891,16 +928,23 @@ class Game {
     }
 
     calcBgImageSize() {
-        // background image size calculations
         this.bgImage = window.images.background;
-        let originalRatios = {
-            width: window.innerWidth / this.bgImage.width,
-            height: window.innerHeight / this.bgImage.height,
-        };
+        console.log(config.preGameScreen.backgroundMode)
+        if (config.preGameScreen.backgroundMode == "fit") {
+            let size = calculateAspectRatioFit(this.bgImage.width, this.bgImage.height, width, height);
+            this.bgImageWidth = size.width;
+            this.bgImageHeight = size.height;
+        } else {
+            // background image size calculations
+            let originalRatios = {
+                width: window.innerWidth / this.bgImage.width,
+                height: window.innerHeight / this.bgImage.height,
+            };
 
-        let coverRatio = Math.max(originalRatios.width, originalRatios.height);
-        this.bgImageWidth = this.bgImage.width * coverRatio;
-        this.bgImageHeight = this.bgImage.height * coverRatio;
+            let coverRatio = Math.max(originalRatios.width, originalRatios.height);
+            this.bgImageWidth = this.bgImage.width * coverRatio;
+            this.bgImageHeight = this.bgImage.height * coverRatio;
+        }
 
         // also calculate board x - y
         start.x = windowWidth / 2 - floor(rows / 2) * (tileSize + tileOffset);
@@ -950,7 +994,11 @@ class Game {
             // Animate instructions font size
             // in and out
             if (this.instructionsFontSize - this.c_instructionsFontSize > 0.1 && !this.started) {
-                this.c_instructionsFontSize = lerp(this.c_instructionsFontSize, this.instructionsFontSize, 0.2);
+                this.c_instructionsFontSize = lerp(
+                    this.c_instructionsFontSize,
+                    this.instructionsFontSize,
+                    0.2
+                );
             }
 
             if (this.c_instructionsFontSize > 0.1) {
@@ -965,9 +1013,17 @@ class Game {
                 textSize(this.c_instructionsFontSize);
                 textAlign(CENTER);
 
-                text(config.settings.instructions1, width / 2, height / 2 - this.instructionsFontSize * 1.7);
+                text(
+                    config.settings.instructions1,
+                    width / 2,
+                    height / 2 - this.instructionsFontSize * 1.7
+                );
                 text(config.settings.instructions2, width / 2, height / 2);
-                text(config.settings.instructions3, width / 2, height / 2 + this.instructionsFontSize * 1.7);
+                text(
+                    config.settings.instructions3,
+                    width / 2,
+                    height / 2 + this.instructionsFontSize * 1.7
+                );
             }
 
             if (this.started) {
@@ -1189,7 +1245,12 @@ class Rectangle {
 }
 
 function intersectRect(r1, r2) {
-    return !(r2.left() > r1.right() || r2.right() < r1.left() || r2.top() > r1.bottom() || r2.bottom() < r1.top());
+    return !(
+        r2.left() > r1.right() ||
+        r2.right() < r1.left() ||
+        r2.top() > r1.bottom() ||
+        r2.bottom() < r1.top()
+    );
 }
 
 function randomParticleAcc(amt) {

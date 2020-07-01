@@ -1,5 +1,4 @@
 let React = require("react");
-let ReactDOM = require("react-dom");
 let styled = require("styled-components").default;
 
 let Database = require("database-api").default;

@@ -37,6 +37,15 @@
                     "type": "image"
                 },
                 {
+                    "key": "backgroundMode",
+                    "header": "Background image mode",
+                    "type": "dropdown",
+                    "options": [
+                        "cover",
+                        "fit"
+                    ]
+                },
+                {
                     "key": "titleImage",
                     "header": "Header Image",
                     "type": "image"
@@ -431,6 +440,7 @@
             "buttonColor": "#000000",
             "buttonTextColor": "#ffffff",
             "backgroundImage": "assets/background_2.png",
+            "backgroundMode": "cover",
             "titleImage": "assets/placeholder_logo.jpg",
             "titleImageSize": 200,
             "fontFamily": "Balsamiq Sans",
